@@ -1,7 +1,7 @@
 from pathlib import Path
 import json
 from datetime import date
-from libb.other.types_file import Log, ModelSnapshot, DiskLayout
+from libb.other.types_file import Log, ModelSnapshot, DiskLayout, OrderPaylaod
 from dataclasses import asdict
 import pandas as pd
 
@@ -48,7 +48,7 @@ class DiskWriter:
     # Orders
     # ----------------------------
 
-    def save_orders(self, orders: dict) -> None:
+    def save_orders(self, orders: OrderPaylaod) -> None:
         with open(self.layout.pending_trades_path, "w") as f:
             json.dump(orders, f, indent=2)
 
@@ -100,7 +100,7 @@ class DiskWriter:
                 json.dump({"cash": cash}, f, indent=2)
 
 
-    def _override_json_file(self, data: list[dict] | dict[str, list[dict]], path: Path) -> None:
+    def _override_json_file(self, data: list[dict] | OrderPaylaod, path: Path) -> None:
         with open(path, "w") as file:
             json.dump(data, file, indent=2)
         return

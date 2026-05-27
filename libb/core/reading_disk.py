@@ -1,6 +1,6 @@
 from pathlib import Path
 import pandas as pd
-from libb.other.types_file import ModelSnapshot, DiskLayout
+from libb.other.types_file import ModelSnapshot, DiskLayout, OrderPaylaod
 import json
 
 class DiskReader:
@@ -25,11 +25,11 @@ class DiskReader:
                 return json.load(f)
         return []
 
-    def load_orders_dict(self, path: Path) -> dict[str, list[dict]]:
+    def load_orders_dict(self, path: Path) -> OrderPaylaod:
         if path.exists():
             with open(path, "r") as f:
                 return json.load(f)
-        return {"orders": []}
+        return OrderPaylaod(orders=[])
 
     def load_cash(self) -> float:
         with open(self.layout.cash_path, "r") as f:

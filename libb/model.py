@@ -7,7 +7,7 @@ import json
 
 import pandas as pd
 
-from libb.other.types_file import ModelSnapshot, Log, DiskLayout, MarketDataObject, MarketHistoryObject
+from libb.other.types_file import ModelSnapshot, Log, DiskLayout, MarketDataObject, MarketHistoryObject, OrderPaylaod
 from libb.other.config_setup import verifiy_config, set_config
 
 from libb.execution.utils import is_nyse_open
@@ -112,7 +112,7 @@ class LIBBmodel:
         set_config(self.CONFIG)
         self.STARTING_CASH = self.CONFIG["starting_cash"]
 
-        self.pending_trades: dict[str, list[dict]] = self.reader.load_orders_dict(self.layout.pending_trades_path)
+        self.pending_trades: OrderPaylaod = self.reader.load_orders_dict(self.layout.pending_trades_path)
         self.performance: list[dict] = self.reader.load_json(self.layout.performance_path)
         self.behavior: list[dict] = self.reader.load_json(self.layout.behavior_path)
         self.sentiment: list[dict] = self.reader.load_json(self.layout.sentiment_path)
@@ -283,7 +283,8 @@ class LIBBmodel:
     def save_daily_update(self, txt: str) -> Path:
         return self.writer.save_daily_update(txt)
     
-    def save_orders(self, json_block: dict) -> None:
+    def save_orders(self, json_block: OrderPaylaod) -> None:      
+
         self.writer.save_orders(json_block)
 
     def save_prompt(self, txt: str) -> Path:

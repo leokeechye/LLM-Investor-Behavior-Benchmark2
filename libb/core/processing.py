@@ -3,7 +3,7 @@ from typing import cast
 import pandas as pd
 import math
 
-from libb.other.types_file import Order, TradeStatus
+from libb.other.types_file import Order, TradeStatus, OrderPaylaod
 from libb.execution.utils import append_log, is_nyse_open, order_to_trade_schema
 from libb.execution.process_order import process_order
 from libb.execution.get_market_data import download_data_on_given_date
@@ -44,13 +44,13 @@ class Processing:
 # ----------------------------------
         
         
-    def _process_orders(self, pending_trades: dict[str, list[dict]]) -> dict[str, list[dict]]:
+    def _process_orders(self, pending_trades: OrderPaylaod) -> OrderPaylaod:
         """Process all pending orders for the current date.
         Not recommended for workflows; only use `process_portfolio()` for processing."""
         orders = cast(list[Order], pending_trades.get("orders", []))
-        unexecuted_trades = {"orders": []}
+        unexecuted_trades = OrderPaylaod(orders=[])
         if not orders:
-            return unexecuted_trades
+            return OrderPaylaod(orders=[])
         for order in orders:
             order_date = pd.Timestamp(order["date"]).date()
             # drop orders in the past
@@ -92,7 +92,7 @@ class Processing:
                     self.skipped_orders += 1
         # keep any unexecuted trades, completely reset otherwise
         if not unexecuted_trades["orders"]:
-            pending_trades = {"orders": []}
+            pending_trades = OrderPaylaod(orders=[])
         else:
             pending_trades = unexecuted_trades
         return pending_trades
@@ -234,7 +234,7 @@ class Processing:
 # Wrapper
 # ----------------------------------
 
-    def processing(self, pending_trades: dict[str, list[dict]]) -> dict[str, list[dict]]:
+    def processing(self, pending_trades: OrderPaylaod) -> OrderPaylaod:
         unexecuted_trades = self._process_orders(pending_trades)
         self._check_stoplosses()
         self._update_portfolio_market_data()

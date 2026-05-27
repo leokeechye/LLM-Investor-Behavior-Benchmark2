@@ -18,6 +18,9 @@ class Order(TypedDict):
     rationale: str
     confidence: float                       # 0-1
 
+class OrderPaylaod(TypedDict):
+    orders: list[Order]
+
 class MarketDataObject(TypedDict):
      
      Low: float
@@ -50,7 +53,7 @@ class ModelSnapshot:
     trade_log: pd.DataFrame
     position_history: pd.DataFrame
 
-    pending_trades: dict[str, list[dict]]
+    pending_trades: OrderPaylaod
     performance: list[dict]
     behavior: list[dict]
     sentiment: list[dict]
