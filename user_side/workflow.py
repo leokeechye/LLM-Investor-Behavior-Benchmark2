@@ -1,19 +1,22 @@
 from libb import LIBBmodel
 from .prompt_orchestration.prompt_models import prompt_daily_report, prompt_deep_research
+from .universe import enforce_universe
+from .paths import LIVE_ROOT
 from libb.other.parse import parse_json
 import pandas as pd
 
-MODELS = ["deepseek", "gpt-4.1"]
+MODELS = ["deepseek", "gpt-4.1", "claude", "gemini"]
 
 def weekly_flow(date):
 
     for model in MODELS:
-        libb = LIBBmodel(f"user_side/runs/run_v1/{model}", run_date=date)
+        libb = LIBBmodel(f"{LIVE_ROOT}/{model}", run_date=date)
         libb.process_portfolio()
         deep_research_report = prompt_deep_research(libb)
         libb.save_deep_research(deep_research_report)
 
         orders_json = parse_json(deep_research_report, "ORDERS_JSON")
+        orders_json = enforce_universe(libb, orders_json)
 
         libb.save_orders(orders_json)
         libb.analyze_sentiment(deep_research_report)
@@ -21,13 +24,14 @@ def weekly_flow(date):
 
 def daily_flow(date):
     for model in MODELS:
-        libb = LIBBmodel(f"user_side/runs/run_v1/{model}", run_date=date)
+        libb = LIBBmodel(f"{LIVE_ROOT}/{model}", run_date=date)
         libb.process_portfolio()
         daily_report = prompt_daily_report(libb)
         libb.analyze_sentiment(daily_report)
         libb.save_daily_update(daily_report)
 
         orders_json = parse_json(daily_report, "ORDERS_JSON")
+        orders_json = enforce_universe(libb, orders_json)
 
         libb.save_orders(orders_json)
     return
