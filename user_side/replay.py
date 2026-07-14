@@ -13,6 +13,7 @@ default hits the provider registry; tests pass canned outputs for determinism).
 """
 from __future__ import annotations
 
+import shutil
 from datetime import date
 from pathlib import Path
 
@@ -122,12 +123,15 @@ def run_replay(
     config: dict | None = None,
     analyze_sentiment: bool = True,
     progress_cb=None,
+    reset: bool = False,
 ) -> dict:
     """Replay ``model`` day-by-day over [start, end]. Returns a run summary.
 
     ``generate_fn(model, prompt) -> str`` defaults to the provider registry;
-    inject a deterministic stub for testing. Writes to ``run_root/<model>/``,
-    which should be fresh (LIBB refuses to overwrite an existing forward ledger).
+    inject a deterministic stub for testing. Writes to ``run_root/<model>/``.
+    LIBB refuses to overwrite an existing forward ledger, so pass ``reset=True``
+    to wipe that model's replay dir first (each replay is a fresh experiment) —
+    otherwise a re-run or overlapping period raises a backjump error.
     ``progress_cb(done, total, day)`` is called after each session (for UIs).
     """
     generate_fn = generate_fn or registry_generate
@@ -148,6 +152,9 @@ def run_replay(
         )
 
     root = str(Path(run_root) / model)
+    if reset and Path(root).exists():
+        shutil.rmtree(root)  # fresh experiment: LIBB won't overwrite an existing ledger
+
     orders_filled = orders_failed = 0
     n = len(sessions)
 

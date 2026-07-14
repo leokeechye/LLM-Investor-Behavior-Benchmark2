@@ -56,14 +56,18 @@ if mode == "Replay":
     start_in = col_a.date_input("Start", dt.date(2024, 1, 2), key="rp_start")
     end_in = col_b.date_input("End", dt.date(2024, 2, 1), key="rp_end")
     lookback = st.sidebar.number_input("Lookback sessions", 5, 120, 30)
-    st.sidebar.caption("⚠️ Runs real model + price calls — this costs API credits.")
+    st.sidebar.caption(
+        "⚠️ Runs real model + price calls — this costs API credits. Each run is a "
+        "fresh experiment: it **replaces** any previous replay for the chosen models."
+    )
     if st.sidebar.button("Run replay", type="primary", disabled=not replay_models):
         bar = st.progress(0.0, text="Starting replay…")
         for m_idx, model_name in enumerate(replay_models):
             def _cb(done, total, day, _m=model_name, _i=m_idx):
                 frac = (_i + done / total) / len(replay_models)
                 bar.progress(frac, text=f"{_m}: {day} ({done}/{total})")
-            run_replay(model_name, str(start_in), str(end_in), lookback=int(lookback), progress_cb=_cb)
+            run_replay(model_name, str(start_in), str(end_in),
+                       lookback=int(lookback), reset=True, progress_cb=_cb)
         bar.progress(1.0, text="Replay complete")
         st.rerun()
 

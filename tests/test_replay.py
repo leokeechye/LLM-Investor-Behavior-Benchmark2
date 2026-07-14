@@ -96,3 +96,19 @@ def test_replay_is_deterministic(stub_market, tmp_path):
         b = (tmp_path / "b" / "gpt-4.1" / fname).read_text()
         assert a == b, f"{fname} differs between identical replays"
         assert "FILLED" in (tmp_path / "a" / "gpt-4.1" / "portfolio/trade_log.csv").read_text()
+
+
+def test_replay_reset_allows_rerun(stub_market, tmp_path):
+    kw = dict(
+        generate_fn=_canned_generate, lookback=5, analyze_sentiment=False,
+        run_root=str(tmp_path / "r"),
+    )
+    replay.run_replay("gpt-4.1", "2024-02-05", "2024-02-09", **kw)
+
+    # Re-running an overlapping period without reset hits LIBB's forward-only guard.
+    with pytest.raises(RuntimeError):
+        replay.run_replay("gpt-4.1", "2024-02-05", "2024-02-07", **kw)
+
+    # reset=True wipes the run dir first, so the re-run starts fresh and succeeds.
+    summary = replay.run_replay("gpt-4.1", "2024-02-05", "2024-02-07", reset=True, **kw)
+    assert summary["sessions"] == 3
