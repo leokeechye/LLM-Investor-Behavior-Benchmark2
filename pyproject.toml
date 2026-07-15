@@ -6,7 +6,12 @@ build-backend = "setuptools.build_meta"
 name = "libb"
 version = "0.4.8"
 description = "LLM Research framework for persistent portfolio analytics"
-requires-python = ">=3.10"
+requires-python = ">=3.12"
 
 [tool.setuptools.packages.find]
 include = ["libb*"]
+
+[tool.pytest.ini_options]
+# Put the repo root on sys.path so tests can import both `libb` and `user_side`.
+pythonpath = ["."]
+testpaths = ["tests"]

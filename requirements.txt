@@ -2,6 +2,22 @@ numpy==2.3.2
 pandas==2.2.2
 yfinance==0.2.65
 matplotlib==3.8.4
-openai>=1.0.0
 pysentiment2==0.1.1
 pandas_market_calendars==5.2.3
+
+# LLM provider SDKs (one per provider) + registry/env support.
+openai==2.45.0           # OpenAI + DeepSeek (OpenAI-compatible)
+anthropic==0.116.0       # Claude
+google-genai==2.11.0     # Gemini
+PyYAML==6.0.3            # config/models.yaml registry
+python-dotenv==1.2.2     # optional .env loading
+
+# Dashboard (app/)
+streamlit==1.59.2
+altair==6.2.2
+
+# Live-loop scheduler (Railway deployment)
+apscheduler==3.11.3
+
+# Testing
+pytest>=8.0

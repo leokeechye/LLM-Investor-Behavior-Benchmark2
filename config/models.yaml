@@ -1,0 +1,34 @@
+# Model registry — single source of truth for the models under comparison.
+#
+# Each entry:
+#   name            registry key; also the run-directory name under
+#                   user_side/runs/run_v1/<name>/ (and the model picker label)
+#   provider        one of: openai | deepseek | anthropic | google
+#   model_id        exact model id passed to that provider's SDK
+#   training_cutoff YYYY-MM-DD — model knowledge cutoff, used by replay to flag
+#                   lookahead bias. Values verified 2026-07 (sources in comments);
+#                   month-precision, dated to the 1st. Re-check when model_ids change.
+#
+# API keys come from the environment (see .env.example): OPENAI_API_KEY,
+# DEEPSEEK_API_KEY, ANTHROPIC_API_KEY, GEMINI_API_KEY.
+
+models:
+  - name: gpt-4.1
+    provider: openai
+    model_id: gpt-4.1
+    training_cutoff: 2024-06-01  # OpenAI official: knowledge cutoff Jun 2024
+
+  - name: deepseek
+    provider: deepseek
+    model_id: deepseek-chat
+    training_cutoff: 2024-07-01  # ~Jul 2024 (unofficial; DeepSeek doesn't publish a cutoff)
+
+  - name: claude
+    provider: anthropic
+    model_id: claude-sonnet-5
+    training_cutoff: 2026-01-01  # Anthropic official: training + knowledge cutoff Jan 2026
+
+  - name: gemini
+    provider: google
+    model_id: gemini-3.5-flash  # newest GA flash; older gens 404 on this account's API
+    training_cutoff: 2025-01-01  # Google official: knowledge cutoff Jan 2025

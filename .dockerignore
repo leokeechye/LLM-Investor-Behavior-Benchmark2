@@ -1,0 +1,14 @@
+.git
+.venv
+venv
+env
+__pycache__
+*.pyc
+.pytest_cache
+.env
+.env.*
+user_side/runs/replay
+tests
+docs
+*.md
+*:Zone.Identifier

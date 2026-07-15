@@ -1,4 +1,5 @@
 from ..prompt_orchestration.get_prompt_data import get_macro_news
+from ..universe import load_universe
 from libb.model import LIBBmodel
 
 
@@ -37,8 +38,9 @@ CORE RULES (HARD CONSTRAINTS)
 - Budget discipline: no new capital. Use only available cash.
 - Execution limits: full shares only. No options, no shorting, no leverage, no
   derivatives, and no margin. Long-only.
-- Universe: You may choose ANY U.S.-listed equity (any market cap), but you must
-  justify each selection using liquidity, risk, catalysts, valuation, or fit.
+- Universe: You may ONLY trade tickers in the ALLOWED UNIVERSE listed below.
+  Orders for any ticker outside it are REJECTED and will not execute. Justify
+  each selection using liquidity, risk, catalysts, valuation, or fit.
 - Pricing discipline: LIMIT PRICES must be within ±10% of last close unless a
   deviation is explicitly justified with reasoning.
 - Stop-loss discipline: Every long position must have a stop-loss defined.
@@ -54,6 +56,17 @@ CORE RULES (HARD CONSTRAINTS)
 - All dates MUST be valid ISO format (YYYY-MM-DD).
 - All orders MUST be DAY orders — no GTC allowed.
 - You MUST have at least 1 ticker in your portfolio at all times.
+"""
+
+
+ALLOWED_UNIVERSE = """
+---------------------------------------------------------------------------
+ALLOWED UNIVERSE (HARD)
+---------------------------------------------------------------------------
+You may ONLY place orders for the following tickers. An order for any ticker
+not in this list will be REJECTED and logged — it will NOT execute:
+
+{tickers}
 """
 
 
@@ -204,9 +217,6 @@ CONTEXT PROVIDED TO YOU
 - Current Portfolio State:
   [{portfolio}]
 
-- Portfolio News (if any):
-  [{portfolio_news}]
-
 - US Macro Headlines (if any):
   [{us_news}]
 
@@ -230,25 +240,25 @@ def create_deep_research_prompt(libb: LIBBmodel):
             f"The starting cash is {starting_cash}. You must make at least 1 trade."
         )
 
-    portfolio_news = libb.get_portfolio_news()
-
     execution_log = libb.recent_execution_logs()
     if execution_log.empty:
         execution_log = "No recent trade logs."
 
     us_news = get_macro_news()
 
+    universe_str = ", ".join(sorted(load_universe()))
+
     deep_research_prompt = (
         SYSTEM_HEADER.format(today=today)
         + CAPITAL_RULES
         + CORE_RULES
+        + ALLOWED_UNIVERSE.format(tickers=universe_str)
         + CONCENTRATION_RULES
         + DEEP_RESEARCH_REQUIREMENTS
         + ORDER_SPEC_FORMAT
         + ANALYSIS_REQUIREMENTS
         + CONTEXT_BLOCK.format(
             portfolio=portfolio,
-            portfolio_news=portfolio_news,
             us_news=us_news,
             execution_log=execution_log,
         )

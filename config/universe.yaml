@@ -1,0 +1,20 @@
+# Constrained stock universe.
+#
+# Orders for tickers NOT in this list are rejected at order validation and
+# logged to the run's trade_log with status REJECTED (never silently dropped).
+# This same list is the basis for the equal-weight benchmark, and is injected
+# into the model prompts so models are told which tickers they may trade.
+#
+# Tickers are matched case-insensitively (stored uppercase). Edit freely.
+
+universe:
+  - AAPL
+  - MSFT
+  - NVDA
+  - AMZN
+  - GOOGL
+  - META
+  - TSLA
+  - JPM
+  - XOM
+  - JNJ

@@ -1,4 +1,5 @@
 import user_side.prompt_orchestration.get_prompt_data as get_prompt_data
+from ..universe import load_universe
 from libb.model import LIBBmodel
 
 
@@ -65,6 +66,17 @@ Each day you must:
 • you MUST have at least 1 ticker in your portfolio at all times.
 
 Daily mode should be conservative. HOLD is the most common outcome.
+"""
+
+
+ALLOWED_UNIVERSE = """
+---------------------------------------------------------------------------
+ALLOWED UNIVERSE (HARD)
+---------------------------------------------------------------------------
+You may ONLY place orders for the following tickers. An order for any ticker
+not in this list will be REJECTED and logged — it will NOT execute:
+
+[{tickers}]
 """
 
 
@@ -205,12 +217,15 @@ def create_daily_prompt(libb: LIBBmodel):
         else "No recent trade logs."
     )
 
+    universe_str = ", ".join(sorted(load_universe()))
+
     daily_prompt = (
         SYSTEM_HEADER.format(today=today)
         + CAPITAL_RULE
         + PORTFOLIO_SECTION.format(portfolio_text=portfolio_text)
         + LOGS_SECTION.format(logs_text=logs_text)
         + DAILY_OBJECTIVES
+        + ALLOWED_UNIVERSE.format(tickers=universe_str)
         + FAILED_ORDER_HANDLING
         + CONCENTRATION_RULE
         + US_NEWS_SECTION.format(news=news)

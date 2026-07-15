@@ -39,6 +39,13 @@ htmlcov/
 *.log
 
 # ======================
+# Run state (Railway volume; never commit — see CLAUDE.md)
+# ======================
+/data/
+# Generated replay run state (experiment output; not committed)
+user_side/runs/replay/
+
+# ======================
 # Runtime / temp files
 # ======================
 *.pid
@@ -65,12 +72,14 @@ temp/
 # ======================
 .DS_Store
 Thumbs.db
+*:Zone.Identifier
 
 # ======================
 # Environment variables
 # ======================
 .env
 .env.*
+!.env.example
 
 # ======================
 # Secrets / keys
